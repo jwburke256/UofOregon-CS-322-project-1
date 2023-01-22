@@ -15,7 +15,7 @@ run:
 	@(make start)
 
 clean:
-	@(rm -f *.pyc; rm -rf __pycache__)
+	@(rm -f *.pyc; cd pageserver/; rm -rf __pycache__; cd ..)
 
 veryclean:
 	@(rm -f ,pypid)

@@ -102,14 +102,14 @@ def respond(sock):
         page = page.strip('/')
         if '..' in parts[1] or '~' in parts[1] or parts[1] == '/..':
             os.chdir(starting_dir + '/pages')
-            file = open(error403.html)
+            file = open('error403.html')
             transmit(STATUS_FORBIDDEN, sock)
             transmit(file.read(), sock)
             file.close
             os.chdir(starting_dir)
         elif '.html' not in page and '.css' not in page:
             os.chdir(starting_dir + '/pages')
-            file = open(error401.html)
+            file = open('error401.html')
             transmit(STATUS_NOT_IMPLEMENTED, sock)
             transmit(file.read(), sock)
             file.close
@@ -123,7 +123,7 @@ def respond(sock):
             os.chdir(starting_dir)
         else:
             os.chdir(starting_dir + '/pages')
-            file = open(error401.html)
+            file = open('error404.html')
             transmit(STATUS_NOT_FOUND, sock)
             transmit(file.read(), sock)
             file.close
