@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 import socket    # Basic TCP/IP communication on the internet
 import _thread   # Response computation runs concurrently with main program
+import os
 
 
 def listen(portnum):
@@ -90,13 +91,34 @@ def respond(sock):
     log.info("Request was {}\n***\n".format(request))
 
     parts = request.split()
+    starting_dir = os.getcwd()
+    #print(starting_dir)
+    pages = os.listdir(starting_dir + '/pages')
+    #print(pages)
+    #print(parts[1])
+
     if len(parts) > 1 and parts[0] == "GET":
-        transmit(STATUS_OK, sock)
-        transmit(CAT, sock)
+        page = parts[1]
+        page = page.strip('/')
+        if '..' in parts[1] or '~' in parts[1]:
+            transmit(STATUS_FORBIDDEN, sock)
+        elif '.html' not in page and '.css' not in page:
+            transmit(STATUS_NOT_IMPLEMENTED, sock)
+            transmit("\nI don't handle this request: {}\n".format(request), sock)
+        elif page in pages:
+            os.chdir(starting_dir + '/pages')
+            file = open(page)
+            transmit(STATUS_OK, sock)
+            transmit(file.read(), sock)
+            file.close
+            os.chdir(starting_dir)
+        else:
+            transmit(STATUS_NOT_FOUND, sock)
+            transmit("\nUnable to locate " + page + "\n", sock)
     else:
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
-        transmit("\nI don't handle this request: {}\n".format(request), sock)
+        #transmit("\nI don't handle this request: {}\n".format(request), sock)
 
     sock.shutdown(socket.SHUT_RDWR)
     sock.close()
