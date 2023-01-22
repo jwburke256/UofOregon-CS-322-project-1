@@ -1,6 +1,6 @@
 # UOCIS322 - Project 1 #
 
-This project is a simple python webpage server.
+This project involves creating and adjusting simple python webpage server. Server is able to take GET requests and return the proper HTTP response codes and html pages. 
 
 ### Name: Jacob Burke
 
