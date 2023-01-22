@@ -100,11 +100,20 @@ def respond(sock):
     if len(parts) > 1 and parts[0] == "GET":
         page = parts[1]
         page = page.strip('/')
-        if '..' in parts[1] or '~' in parts[1]:
+        if '..' in parts[1] or '~' in parts[1] or parts[1] == '/..':
+            os.chdir(starting_dir + '/pages')
+            file = open(error403.html)
             transmit(STATUS_FORBIDDEN, sock)
+            transmit(file.read(), sock)
+            file.close
+            os.chdir(starting_dir)
         elif '.html' not in page and '.css' not in page:
+            os.chdir(starting_dir + '/pages')
+            file = open(error401.html)
             transmit(STATUS_NOT_IMPLEMENTED, sock)
-            transmit("\nI don't handle this request: {}\n".format(request), sock)
+            transmit(file.read(), sock)
+            file.close
+            os.chdir(starting_dir)
         elif page in pages:
             os.chdir(starting_dir + '/pages')
             file = open(page)
@@ -113,12 +122,16 @@ def respond(sock):
             file.close
             os.chdir(starting_dir)
         else:
+            os.chdir(starting_dir + '/pages')
+            file = open(error401.html)
             transmit(STATUS_NOT_FOUND, sock)
-            transmit("\nUnable to locate " + page + "\n", sock)
+            transmit(file.read(), sock)
+            file.close
+            os.chdir(starting_dir)
     else:
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
-        #transmit("\nI don't handle this request: {}\n".format(request), sock)
+        transmit("\nI don't handle this request: {}\n".format(request), sock)
 
     sock.shutdown(socket.SHUT_RDWR)
     sock.close()
