@@ -91,9 +91,7 @@ def respond(sock):
     log.info("Request was {}\n***\n".format(request))
 
     parts = request.split()
-    starting_dir = os.getcwd()
-    #print(starting_dir)
-    pages = os.listdir(starting_dir + '/pages')
+    pages = os.listdir(".")
     #print(pages)
     #print(parts[1])
 
@@ -101,33 +99,25 @@ def respond(sock):
         page = parts[1]
         page = page.strip('/')
         if '..' in parts[1] or '~' in parts[1] or parts[1] == '/..':
-            os.chdir(starting_dir + '/pages')
             file = open('error403.html')
             transmit(STATUS_FORBIDDEN, sock)
             transmit(file.read(), sock)
             file.close
-            os.chdir(starting_dir)
         elif '.html' not in page and '.css' not in page:
-            os.chdir(starting_dir + '/pages')
             file = open('error401.html')
             transmit(STATUS_NOT_IMPLEMENTED, sock)
             transmit(file.read(), sock)
             file.close
-            os.chdir(starting_dir)
         elif page in pages:
-            os.chdir(starting_dir + '/pages')
             file = open(page)
             transmit(STATUS_OK, sock)
             transmit(file.read(), sock)
             file.close
-            os.chdir(starting_dir)
         else:
-            os.chdir(starting_dir + '/pages')
             file = open('error404.html')
             transmit(STATUS_NOT_FOUND, sock)
             transmit(file.read(), sock)
             file.close
-            os.chdir(starting_dir)
     else:
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
@@ -178,6 +168,7 @@ def main():
     sock = listen(port)
     log.info("Listening on port {}".format(port))
     log.info("Socket is {}".format(sock))
+    os.chdir(options.DOCROOT)
     serve(sock, respond)
 
 
